@@ -1,6 +1,7 @@
 package home.anita;
 
 import home.anita.RoutingConfig.ServerConfig;
+import home.anita.http.RequestHandler;
 import home.anita.server.ServerSelector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,9 @@ class RoutingServiceTest {
     @Mock
     private ServerSelector serverSelector;
 
+    @Mock
+    private RequestHandler requestHandler;
+
     @InjectMocks
     private RoutingService routingService;
 
@@ -52,24 +56,21 @@ class RoutingServiceTest {
 
         when(headerHandler.processHeaders(any(HttpHeaders.class))).thenReturn(new HttpHeaders());
         when(serverSelector.select(mockServers)).thenReturn(selectedServer);
+        when(requestHandler.sendRequest(any())).thenReturn(ResponseEntity.ok("Success"));
 
         HttpHeaders headers = new HttpHeaders();
         String requestBody = "{\"test\": \"data\"}";
         String path = "/api/echo";
 
-        // Since we can't easily test actual HTTP calls, we just verify that the method
-        // calls the components and attempts routing
-        for (int i = 0; i < 5; i++) {
-            try {
-                routingService.routeRequest(requestBody, headers, path, mockServers);
-            } catch (Exception e) {
-                // Expected since we're not mocking WebClient
-            }
-        }
+        ResponseEntity<String> response = routingService.routeRequest(requestBody, headers, path, mockServers);
 
-        // Verify that all components were called multiple times
-        verify(headerHandler, atLeast(5)).processHeaders(any(HttpHeaders.class));
-        verify(serverSelector, atLeast(5)).select(mockServers);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Success", response.getBody());
+
+        // Verify that all components were called
+        verify(headerHandler).processHeaders(any(HttpHeaders.class));
+        verify(serverSelector).select(mockServers);
+        verify(requestHandler).sendRequest(any());
     }
 
     @Test
@@ -105,6 +106,7 @@ class RoutingServiceTest {
         ServerConfig selectedServer = mockServers.iterator().next();
         when(serverSelector.select(mockServers)).thenReturn(selectedServer);
         when(headerHandler.processHeaders(any(HttpHeaders.class))).thenReturn(new HttpHeaders());
+        when(requestHandler.sendRequest(any())).thenReturn(ResponseEntity.ok("Success"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Custom-Header", "test-value");
@@ -114,11 +116,12 @@ class RoutingServiceTest {
         String requestBody = "{\"test\": \"data\"}";
         String path = "/api/echo";
 
-        try {
-            routingService.routeRequest(requestBody, headers, path, mockServers);
-        } catch (Exception e) {
-        }
+        ResponseEntity<String> response = routingService.routeRequest(requestBody, headers, path, mockServers);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Success", response.getBody());
 
         verify(headerHandler).processHeaders(headers);
+        verify(requestHandler).sendRequest(any());
     }
 }

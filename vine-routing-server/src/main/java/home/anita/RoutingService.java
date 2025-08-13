@@ -1,13 +1,14 @@
 package home.anita;
 
 import home.anita.RoutingConfig.ServerConfig;
+import home.anita.http.RequestHandler;
+import home.anita.http.RoutingRequest;
 import home.anita.server.ServerSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.Set;
@@ -19,13 +20,12 @@ public class RoutingService {
 
     private final HeaderHandler headerHandler;
     private final ServerSelector serverSelector;
-    private final WebClient webClient;
+    private final RequestHandler requestHandler;
 
-    public RoutingService(HeaderHandler headerHandler, ServerSelector serverSelector) {
+    public RoutingService(HeaderHandler headerHandler, ServerSelector serverSelector, RequestHandler requestHandler) {
         this.headerHandler = headerHandler;
         this.serverSelector = serverSelector;
-        // TODO make this a bean
-        this.webClient = WebClient.builder().build();
+        this.requestHandler = requestHandler;
     }
 
     public ResponseEntity<String> routeRequest(String requestBody, HttpHeaders headers, String path, Set<ServerConfig> servers) {
@@ -37,26 +37,26 @@ public class RoutingService {
             String errorJson = "{\"status\": \"error\", \"message\": \"No available servers\"}";
             return ResponseEntity.internalServerError().body(errorJson);
         }
-        String targetUrl = selectedServer.getUrl() + path;
 
-        logger.info("Routing request to: {}", targetUrl);
+        logger.info("Routing request to: {}{}", selectedServer.getUrl(), path);
 
         try {
-            HttpHeaders forwardHeaders = headerHandler.processHeaders(headers);
+            var forwardHeaders = headerHandler.processHeaders(headers);
+            var routingRequest = RoutingRequest.create(
+                selectedServer.getUrl(), 
+                path, 
+                forwardHeaders, 
+                requestBody
+            );
 
-            ResponseEntity<String> response = webClient
-                    .post()
-                    .uri(targetUrl)
-                    .headers(httpHeaders -> httpHeaders.addAll(forwardHeaders))
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .toEntity(String.class)
-                    .block();
+            var response = requestHandler.sendRequest(routingRequest);
 
-            logger.info("Response received from {}: status={}", targetUrl, response.getStatusCode());
+            logger.info("Response received from {}: status={}", 
+                routingRequest.getUrl(), response != null ? response.getStatusCode() : "null");
             return response;
 
         } catch (WebClientResponseException e) {
+            var targetUrl = selectedServer.getUrl() + path;
             if (e.getStatusCode().is4xxClientError()) {
                 logger.warn("Client error from {}: status={}, body={}", targetUrl, e.getStatusCode(), e.getResponseBodyAsString());
             } else {
@@ -65,6 +65,7 @@ public class RoutingService {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
 
         } catch (Exception e) {
+            var targetUrl = selectedServer.getUrl() + path;
             logger.error("Unexpected error routing to {}: {}", targetUrl, e.getMessage());
             return ResponseEntity.internalServerError().body("Internal routing error");
         }
