@@ -1,4 +1,4 @@
-package home.anita;
+package home.anita.server;
 
 import home.anita.RoutingConfig.ServerConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,8 +35,8 @@ class RandomServerSelectorTest {
     }
 
     @Test
-    void testSelectServerWithMultipleServers() {
-        ServerConfig selected = serverSelector.selectServer(servers);
+    void testSelectWithMultipleServers() {
+        ServerConfig selected = serverSelector.select(servers);
         
         assertNotNull(selected);
         assertTrue(servers.contains(selected), "Selected server should be from the original set");
@@ -44,12 +44,12 @@ class RandomServerSelectorTest {
     }
 
     @Test
-    void testSelectServerWithSingleServer() {
+    void testSelectServerWithSingle() {
         ServerConfig singleServer = new ServerConfig();
         singleServer.setUrl("http://localhost:8080");
         Set<ServerConfig> singleServerSet = Set.of(singleServer);
         
-        ServerConfig selected = serverSelector.selectServer(singleServerSet);
+        ServerConfig selected = serverSelector.select(singleServerSet);
         
         assertNotNull(selected);
         assertEquals(singleServer, selected);
@@ -57,12 +57,12 @@ class RandomServerSelectorTest {
     }
 
     @Test
-    void testSelectServerRandomness() {
+    void testSelectRandomness() {
         // Run the selection multiple times to verify randomness
         Set<String> selectedUrls = new HashSet<>();
         
         for (int i = 0; i < 100; i++) {
-            ServerConfig selected = serverSelector.selectServer(servers);
+            ServerConfig selected = serverSelector.select(servers);
             selectedUrls.add(selected.getUrl());
         }
         
@@ -72,31 +72,31 @@ class RandomServerSelectorTest {
     }
 
     @Test
-    void testSelectServerWithNullSet() {
+    void testSelectWithNullSet() {
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> serverSelector.selectServer(null)
+            () -> serverSelector.select(null)
         );
         
         assertEquals("Server set cannot be null or empty", exception.getMessage());
     }
 
     @Test
-    void testSelectServerWithEmptySet() {
+    void testSelectWithEmptySet() {
         Set<ServerConfig> emptySet = Collections.emptySet();
         
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> serverSelector.selectServer(emptySet)
+            () -> serverSelector.select(emptySet)
         );
         
         assertEquals("Server set cannot be null or empty", exception.getMessage());
     }
 
     @Test
-    void testSelectServerReturnsValidServer() {
+    void testSelectServerReturnsValid() {
         for (int i = 0; i < 50; i++) {
-            ServerConfig selected = serverSelector.selectServer(servers);
+            ServerConfig selected = serverSelector.select(servers);
             
             assertNotNull(selected, "Selected server should not be null");
             assertNotNull(selected.getUrl(), "Selected server URL should not be null");
@@ -106,14 +106,14 @@ class RandomServerSelectorTest {
     }
 
     @Test
-    void testSelectServerDistribution() {
+    void testSelectDistribution() {
         // Test that selection appears reasonably distributed
         int iterations = 300;
         int[] counts = new int[3];
         String[] urls = {"http://localhost:9001", "http://localhost:9002", "http://localhost:9003"};
         
         for (int i = 0; i < iterations; i++) {
-            ServerConfig selected = serverSelector.selectServer(servers);
+            ServerConfig selected = serverSelector.select(servers);
             String selectedUrl = selected.getUrl();
             
             for (int j = 0; j < urls.length; j++) {
@@ -136,7 +136,7 @@ class RandomServerSelectorTest {
     }
 
     @Test
-    void testSelectServerWithDifferentServerTypes() {
+    void testSelectServerWithDifferentTypes() {
         ServerConfig server1 = new ServerConfig();
         server1.setUrl("http://server1.example.com:8080");
         
@@ -145,7 +145,7 @@ class RandomServerSelectorTest {
         
         Set<ServerConfig> mixedServers = Set.of(server1, server2);
         
-        ServerConfig selected = serverSelector.selectServer(mixedServers);
+        ServerConfig selected = serverSelector.select(mixedServers);
         
         assertNotNull(selected);
         assertTrue(mixedServers.contains(selected));

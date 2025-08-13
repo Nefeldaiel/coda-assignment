@@ -16,9 +16,11 @@ public class RoutingController {
     private static final Logger logger = LoggerFactory.getLogger(RoutingController.class);
 
     private final RoutingService routingService;
+    private final RoutingConfig routingConfig;
 
-    public RoutingController(RoutingService routingService) {
+    public RoutingController(RoutingService routingService, RoutingConfig routingConfig) {
         this.routingService = routingService;
+        this.routingConfig = routingConfig;
     }
 
     @PostMapping("/**")
@@ -30,6 +32,6 @@ public class RoutingController {
         String path = request.getRequestURI();
         logger.info("Received POST request for path: {}", path);
 
-        return routingService.routeRequest(requestBody, headers, path);
+        return routingService.routeRequest(requestBody, headers, path, routingConfig.getServers());
     }
 }

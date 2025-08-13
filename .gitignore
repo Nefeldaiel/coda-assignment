@@ -30,3 +30,6 @@ logs/
 # Runtime
 tmp/
 .tmp/
+
+# Claude Context (for AI development consistency)
+claude-context-coda-assignment.md

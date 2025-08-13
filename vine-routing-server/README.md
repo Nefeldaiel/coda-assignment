@@ -15,7 +15,7 @@ Configure application servers in `src/main/resources/application.yml`:
 
 ```yaml
 server:
-  port: 8080
+  port: 8090
 
 routing:
   servers:
@@ -33,7 +33,7 @@ routing:
 
 2. **Send POST requests**:
    ```bash
-   curl -X POST http://localhost:8080/api/echo \
+   curl -X POST http://localhost:8090/api/echo \
         -H "Content-Type: application/json" \
         -d '{"message": "test"}'
    ```

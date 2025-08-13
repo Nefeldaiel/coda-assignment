@@ -23,12 +23,15 @@ class RoutingControllerTest {
     @MockBean
     private RoutingService routingService;
 
+    @MockBean
+    private RoutingConfig routingConfig;
+
     @Test
     void testPostRequestRouting() throws Exception {
         String requestBody = "{\"message\": \"test\"}";
         String responseBody = "{\"message\": \"test\", \"port\": \"9001\"}";
         
-        when(routingService.routeRequest(eq(requestBody), any(HttpHeaders.class), eq("/api/echo")))
+        when(routingService.routeRequest(eq(requestBody), any(HttpHeaders.class), eq("/api/echo"), any()))
             .thenReturn(ResponseEntity.ok(responseBody));
 
         mockMvc.perform(post("/api/echo")
@@ -62,7 +65,7 @@ class RoutingControllerTest {
     void testErrorPropagation404() throws Exception {
         String requestBody = "{\"message\": \"test\"}";
         
-        when(routingService.routeRequest(eq(requestBody), any(HttpHeaders.class), eq("/nonexistent")))
+        when(routingService.routeRequest(eq(requestBody), any(HttpHeaders.class), eq("/nonexistent"), any()))
             .thenReturn(ResponseEntity.notFound().build());
 
         mockMvc.perform(post("/nonexistent")
@@ -76,7 +79,7 @@ class RoutingControllerTest {
         String requestBody = "{\"message\": \"test\"}";
         String errorBody = "Internal server error";
         
-        when(routingService.routeRequest(eq(requestBody), any(HttpHeaders.class), eq("/api/echo")))
+        when(routingService.routeRequest(eq(requestBody), any(HttpHeaders.class), eq("/api/echo"), any()))
             .thenReturn(ResponseEntity.internalServerError().body(errorBody));
 
         mockMvc.perform(post("/api/echo")

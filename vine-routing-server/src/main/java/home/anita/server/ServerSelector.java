@@ -1,4 +1,4 @@
-package home.anita;
+package home.anita.server;
 
 import home.anita.RoutingConfig.ServerConfig;
 
@@ -17,5 +17,5 @@ public interface ServerSelector {
      * @return The selected server configuration
      * @throws IllegalArgumentException if the server set is null or empty
      */
-    ServerConfig selectServer(Set<ServerConfig> servers);
+    ServerConfig select(Set<ServerConfig> servers);
 }

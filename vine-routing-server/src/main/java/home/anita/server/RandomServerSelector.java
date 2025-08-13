@@ -1,4 +1,4 @@
-package home.anita;
+package home.anita.server;
 
 import home.anita.RoutingConfig.ServerConfig;
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class RandomServerSelector implements ServerSelector {
      * @throws IllegalArgumentException if the server set is null or empty
      */
     @Override
-    public ServerConfig selectServer(Set<ServerConfig> servers) {
+    public ServerConfig select(Set<ServerConfig> servers) {
         if (servers == null || servers.isEmpty()) {
             throw new IllegalArgumentException("Server set cannot be null or empty");
         }

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8090
 
 routing:
   servers:
@@ -7,9 +7,14 @@ routing:
     - url: "http://localhost:9002"
     - url: "http://localhost:9003"
 
+health-check:
+  interval: 10000  # Health check interval in milliseconds (10 seconds)
+
 logging:
-  level:
-    home.anita: INFO
-    org.springframework.web: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    home.anita: INFO
+    org.springframework: WARN
+    org.apache: WARN

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EchoController {
 
-    @Value("${server.port:8080}")
+    @Value("${server.port:9001}")
     private int serverPort;
 
     private final ObjectMapper objectMapper = new ObjectMapper();

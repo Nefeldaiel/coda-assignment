@@ -1,4 +1,4 @@
-package home.anita;
+package home.anita.server;
 
 import home.anita.RoutingConfig.ServerConfig;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ class ServerSelectorTest {
      */
     private static class TestServerSelector implements ServerSelector {
         @Override
-        public ServerConfig selectServer(Set<ServerConfig> servers) {
+        public ServerConfig select(Set<ServerConfig> servers) {
             if (servers == null || servers.isEmpty()) {
                 throw new IllegalArgumentException("Server set cannot be null or empty");
             }
@@ -34,7 +34,7 @@ class ServerSelectorTest {
         Set<ServerConfig> servers = new HashSet<>();
         servers.add(server1);
         
-        ServerConfig selected = selector.selectServer(servers);
+        ServerConfig selected = selector.select(servers);
         
         assertNotNull(selected);
         assertEquals(server1, selected);
@@ -46,7 +46,7 @@ class ServerSelectorTest {
         
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> selector.selectServer(null)
+            () -> selector.select(null)
         );
         
         assertEquals("Server set cannot be null or empty", exception.getMessage());
@@ -58,7 +58,7 @@ class ServerSelectorTest {
         
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> selector.selectServer(Collections.emptySet())
+            () -> selector.select(Collections.emptySet())
         );
         
         assertEquals("Server set cannot be null or empty", exception.getMessage());
