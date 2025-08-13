@@ -1,0 +1,15 @@
+server:
+  port: 8080
+
+routing:
+  servers:
+    - url: "http://localhost:9001"
+    - url: "http://localhost:9002"
+    - url: "http://localhost:9003"
+
+logging:
+  level:
+    home.anita: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

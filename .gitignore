@@ -1,5 +1,7 @@
 # Gradle
 grape-application-server/.gradle/
+vine-routing-server/.gradle/
+vine-routing-server/build/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
