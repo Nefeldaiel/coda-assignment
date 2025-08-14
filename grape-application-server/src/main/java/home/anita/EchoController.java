@@ -3,8 +3,8 @@ package home.anita;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class EchoController {
 
     private final AppConfig appConfig;
-    private final ServletWebServerApplicationContext webServerAppContext;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -30,7 +29,8 @@ public class EchoController {
      * Optionally applies artificial delay if slow feature is enabled.
      */
     @PostMapping("/api/echo")
-    public ResponseEntity<String> echo(@RequestBody String requestBody) {
+    public ResponseEntity<String> echo(@RequestBody String requestBody,
+                                       HttpServletRequest request) {
         try {
             if (shouldSlowDown()) {
                 Thread.sleep(appConfig.getSlow().getSleepTimeMs());
@@ -39,7 +39,7 @@ public class EchoController {
             JsonNode jsonNode = objectMapper.readTree(requestBody);
             if (jsonNode.isObject()) {
                 var objectNode = (ObjectNode) jsonNode;
-                var actualPort = webServerAppContext.getWebServer().getPort();
+                var actualPort = request.getLocalPort();
                 objectNode.put("port", String.valueOf(actualPort));
                 return ResponseEntity.ok(objectMapper.writeValueAsString(objectNode));
             } else {

@@ -1,8 +1,7 @@
 package home.anita;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.stereotype.Component;
@@ -17,9 +16,8 @@ import java.net.ServerSocket;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PortChecker implements WebServerFactoryCustomizer<ConfigurableWebServerFactory> {
-
-    private static final Logger logger = LoggerFactory.getLogger(PortChecker.class);
 
     private final AppConfig appConfig;
 
@@ -35,7 +33,7 @@ public class PortChecker implements WebServerFactoryCustomizer<ConfigurableWebSe
         if (explicitPort != null) {
             // Port was explicitly set via command line argument
             int port = Integer.parseInt(explicitPort);
-            logger.info("Using explicitly requested port: {}", port);
+            log.info("Using explicitly requested port: {}", port);
             factory.setPort(port);
             return;
         }
@@ -44,15 +42,15 @@ public class PortChecker implements WebServerFactoryCustomizer<ConfigurableWebSe
         int startPort = appConfig.getPort().getStart();
         int maxPort = appConfig.getPort().getMax();
 
-        logger.info("Searching for available port from {} to {}", startPort, maxPort);
+        log.info("Searching for available port from {} to {}", startPort, maxPort);
 
         for (int port = startPort; port <= maxPort; port++) {
             if (isPortAvailable(port)) {
-                logger.info("Found available port: {}", port);
+                log.info("Found available port: {}", port);
                 factory.setPort(port);
                 return;
             } else {
-                logger.debug("Port {} is in use, trying next port", port);
+                log.debug("Port {} is in use, trying next port", port);
             }
         }
 

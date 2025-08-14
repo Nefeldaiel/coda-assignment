@@ -1,5 +1,6 @@
 package home.anita;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
  * Processes --slow arguments and configures artificial response delays for testing.
  */
 @Component
+@Slf4j
 public class SlowArgumentHandler extends ArgumentHandler {
 
     public static final boolean SLOW_FEATURE_ENABLED_DEFAULT_VALUE = false;
@@ -23,6 +25,6 @@ public class SlowArgumentHandler extends ArgumentHandler {
             System.setProperty("app.slow.enabled", "true");
         }
 
-        logger.info("Slow feature: {}", slowEnabled ? "ENABLED" : "DISABLED");
+        log.info("Slow feature: {}", slowEnabled ? "ENABLED" : "DISABLED");
     }
 }

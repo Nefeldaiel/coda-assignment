@@ -1,15 +1,13 @@
 package home.anita;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Abstract base class for handling command line arguments.
  * Provides utility methods for parsing integer and boolean arguments.
  */
+@Slf4j
 public abstract class ArgumentHandler {
-
-    protected static final Logger logger = LoggerFactory.getLogger(ArgumentHandler.class);
 
     /**
      * Parses an integer value from command line arguments.
@@ -26,7 +24,7 @@ public abstract class ArgumentHandler {
                 try {
                     return Integer.parseInt(args[i + 1]);
                 } catch (NumberFormatException e) {
-                    logger.warn("Invalid value for {}: {}. Using default: {}", argName, args[i + 1], defaultValue);
+                    log.warn("Invalid value for {}: {}. Using default: {}", argName, args[i + 1], defaultValue);
                     return defaultValue;
                 }
             }

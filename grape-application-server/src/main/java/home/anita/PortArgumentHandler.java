@@ -1,7 +1,6 @@
 package home.anita;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,9 +8,9 @@ import org.springframework.stereotype.Component;
  * Processes --port arguments and sets system properties for explicit port configuration.
  */
 @Component
+@Slf4j
 public class PortArgumentHandler extends ArgumentHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(PortArgumentHandler.class);
     public static final int NO_PORT_SPECIFIED = -1;
 
     /**
@@ -24,9 +23,9 @@ public class PortArgumentHandler extends ArgumentHandler {
 
         if (explicitPort != NO_PORT_SPECIFIED) {
             System.setProperty("server.port.explicit", String.valueOf(explicitPort));
-            logger.info("Explicit port specified: {}", explicitPort);
+            log.info("Explicit port specified: {}", explicitPort);
         } else {
-            logger.info("No explicit port specified, will use port range from configuration");
+            log.info("No explicit port specified, will use port range from configuration");
         }
     }
 }
