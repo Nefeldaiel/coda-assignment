@@ -2,6 +2,9 @@ app:
   port:
     start: 9001
     max: 9010
+  slow:
+    enabled: false
+    sleepTimeMs: 800
 
 logging:
   pattern:

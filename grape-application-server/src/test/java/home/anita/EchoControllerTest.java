@@ -1,10 +1,16 @@
 package home.anita;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.web.server.WebServer;
+import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import static org.mockito.Mockito.when;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -14,6 +20,26 @@ class EchoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    
+    @MockBean
+    private AppConfig appConfig;
+    
+    @MockBean
+    private ServletWebServerApplicationContext webServerAppContext;
+    
+    @BeforeEach
+    void setUp() {
+        AppConfig.Slow slowConfig = new AppConfig.Slow();
+        slowConfig.setEnabled(false);
+        slowConfig.setSleepTimeMs(800L);
+        
+        when(appConfig.getSlow()).thenReturn(slowConfig);
+        
+        // Mock the web server to return a test port
+        WebServer webServer = org.mockito.Mockito.mock(WebServer.class);
+        when(webServerAppContext.getWebServer()).thenReturn(webServer);
+        when(webServer.getPort()).thenReturn(9001);
+    }
 
     @Test
     void testEchoWithPlainText() throws Exception {
@@ -127,5 +153,51 @@ class EchoControllerTest {
     void testDeleteMethodReturns405() throws Exception {
         mockMvc.perform(delete("/api/echo"))
                 .andExpect(status().isMethodNotAllowed());
+    }
+    
+    @Test
+    void testSlowFeatureEnabled() throws Exception {
+        AppConfig.Slow slowConfig = new AppConfig.Slow();
+        slowConfig.setEnabled(true);
+        slowConfig.setSleepTimeMs(100L);
+        
+        when(appConfig.getSlow()).thenReturn(slowConfig);
+        
+        // Mock web server for this test as well
+        WebServer webServer = org.mockito.Mockito.mock(WebServer.class);
+        when(webServerAppContext.getWebServer()).thenReturn(webServer);
+        when(webServer.getPort()).thenReturn(9001);
+        
+        String requestBody = "test";
+        long startTime = System.currentTimeMillis();
+        
+        mockMvc.perform(post("/api/echo")
+                .contentType(MediaType.TEXT_PLAIN)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(content().string(requestBody));
+        
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        
+        // Should take at least 100ms due to sleep
+        assert(duration >= 100);
+    }
+    
+    @Test
+    void testPortReflectsActualServerPort() throws Exception {
+        // Mock web server to return a specific port
+        WebServer webServer = org.mockito.Mockito.mock(WebServer.class);
+        when(webServerAppContext.getWebServer()).thenReturn(webServer);
+        when(webServer.getPort()).thenReturn(8765);  // Different port than default
+        
+        String requestBody = "{\"message\": \"test\"}";
+        
+        mockMvc.perform(post("/api/echo")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("test"))
+                .andExpect(jsonPath("$.port").value("8765"));  // Should reflect actual server port
     }
 }
