@@ -1,5 +1,6 @@
 package home.anita.http;
 
+import lombok.Getter;
 import org.springframework.http.HttpHeaders;
 
 import static org.springframework.http.HttpMethod.POST;
@@ -8,6 +9,7 @@ import static org.springframework.http.HttpMethod.POST;
  * HTTP request model for routing requests to application servers.
  * Used by RoutingService to forward requests through RequestHandler.
  */
+@Getter
 public class RoutingRequest extends HttpRequest {
 
     private final String path;
@@ -25,24 +27,6 @@ public class RoutingRequest extends HttpRequest {
         super(targetServerUrl + path, POST, headers, body);
         this.path = path;
         this.targetServerUrl = targetServerUrl;
-    }
-
-    /**
-     * Gets the path component of the request.
-     *
-     * @return The request path
-     */
-    public String getPath() {
-        return path;
-    }
-
-    /**
-     * Gets the target server base URL.
-     *
-     * @return The target server URL
-     */
-    public String getTargetServerUrl() {
-        return targetServerUrl;
     }
 
     /**

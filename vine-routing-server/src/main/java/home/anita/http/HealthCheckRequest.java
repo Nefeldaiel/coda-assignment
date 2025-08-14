@@ -1,11 +1,14 @@
 package home.anita.http;
 
+import lombok.Getter;
+
 import static org.springframework.http.HttpMethod.GET;
 
 /**
  * HTTP request model for health check requests to application servers.
  * Used by HealthCheckService to check server health through RequestHandler.
  */
+@Getter
 public class HealthCheckRequest extends HttpRequest {
 
     private static final String HEALTH_ENDPOINT = "/health";
@@ -20,15 +23,6 @@ public class HealthCheckRequest extends HttpRequest {
     public HealthCheckRequest(String serverUrl) {
         super(serverUrl + HEALTH_ENDPOINT, GET);
         this.serverUrl = serverUrl;
-    }
-
-    /**
-     * Gets the server URL being checked.
-     *
-     * @return The server base URL
-     */
-    public String getServerUrl() {
-        return serverUrl;
     }
 
     /**

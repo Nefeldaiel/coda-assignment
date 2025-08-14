@@ -1,8 +1,7 @@
 package home.anita.server;
 
 import home.anita.RoutingConfig.ServerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
@@ -12,15 +11,14 @@ import java.util.Set;
  * Implementation of ServerSelector that randomly selects a server from the available set.
  */
 @Component
+@Slf4j
 public class RandomServerSelector implements ServerSelector {
 
-    private static final Logger logger = LoggerFactory.getLogger(RandomServerSelector.class);
-    
     private final Random random = new Random();
 
     /**
      * Randomly selects a server from the given set of servers.
-     * 
+     *
      * @param servers The set of available servers to select from
      * @return A randomly selected server configuration
      * @throws IllegalArgumentException if the server set is null or empty
@@ -37,7 +35,7 @@ public class RandomServerSelector implements ServerSelector {
         int currentIndex = 0;
         for (ServerConfig server : servers) {
             if (currentIndex == index) {
-                logger.debug("Selected server {}/{}: {}", index + 1, size, server.getUrl());
+                log.debug("Selected server {}/{}: {}", index + 1, size, server.getUrl());
                 return server;
             }
             currentIndex++;
@@ -45,7 +43,7 @@ public class RandomServerSelector implements ServerSelector {
 
         // This should never happen, but as a fallback return the first server
         ServerConfig fallback = servers.iterator().next();
-        logger.warn("Fallback to first server due to unexpected selection error: {}", fallback.getUrl());
+        log.warn("Fallback to first server due to unexpected selection error: {}", fallback.getUrl());
         return fallback;
     }
 }

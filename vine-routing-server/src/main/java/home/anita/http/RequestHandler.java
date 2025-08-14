@@ -1,7 +1,6 @@
 package home.anita.http;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -17,9 +16,8 @@ import static org.springframework.http.HttpMethod.POST;
  * All HTTP requests should go through this handler for consistency and maintainability.
  */
 @Component
+@Slf4j
 public class RequestHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private final WebClient webClient;
 
@@ -36,7 +34,7 @@ public class RequestHandler {
      * @throws RuntimeException           for other network or processing errors
      */
     public ResponseEntity<String> sendRequest(HttpRequest request) {
-        logger.debug("Sending {} request to: {}", request.getMethod(), request.getUrl());
+        log.debug("Sending {} request to: {}", request.getMethod(), request.getUrl());
 
         try {
             ResponseSpec responseSpec;
@@ -65,18 +63,18 @@ public class RequestHandler {
                     .toEntity(String.class)
                     .block();
 
-            logger.debug("Request to {} completed with status: {}",
+            log.debug("Request to {} completed with status: {}",
                     request.getUrl(), response != null ? response.getStatusCode() : "null");
 
             return response;
 
         } catch (WebClientResponseException e) {
-            logger.warn("HTTP error for request to {}: status={}, body={}",
+            log.warn("HTTP error for request to {}: status={}, body={}",
                     request.getUrl(), e.getStatusCode(), e.getResponseBodyAsString());
             throw e;
 
         } catch (Exception e) {
-            logger.error("Unexpected error sending request to {}: {}",
+            log.error("Unexpected error sending request to {}: {}",
                     request.getUrl(), e.getMessage());
             throw new RuntimeException("Failed to send HTTP request", e);
         }

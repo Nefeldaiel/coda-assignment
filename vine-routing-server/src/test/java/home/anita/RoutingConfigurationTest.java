@@ -3,6 +3,7 @@ package home.anita;
 import home.anita.server.HealthAwareServerSelector;
 import home.anita.server.HealthCheckService;
 import home.anita.server.RandomServerSelector;
+import home.anita.server.RoundRobinServerSelector;
 import home.anita.server.ServerSelector;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,11 +24,11 @@ class RoutingConfigurationTest {
     private ApplicationContext applicationContext;
 
     @Test
-    void testServerSelectorBeanIsHealthAware() {
+    void testServerSelectorBeanIsRoundRobin() {
         ServerSelector serverSelector = applicationContext.getBean(ServerSelector.class);
         
         assertNotNull(serverSelector);
-        assertInstanceOf(HealthAwareServerSelector.class, serverSelector);
+        assertInstanceOf(RoundRobinServerSelector.class, serverSelector);
     }
 
     @Test
@@ -42,6 +43,14 @@ class RoutingConfigurationTest {
         HealthCheckService healthCheckService = applicationContext.getBean(HealthCheckService.class);
         
         assertNotNull(healthCheckService);
+    }
+    
+    @Test
+    void testHealthAwareServerSelectorBeanExists() {
+        ServerSelector healthAwareSelector = applicationContext.getBean("healthAwareServerSelector", ServerSelector.class);
+        
+        assertNotNull(healthAwareSelector);
+        assertInstanceOf(HealthAwareServerSelector.class, healthAwareSelector);
     }
 
     @Test
